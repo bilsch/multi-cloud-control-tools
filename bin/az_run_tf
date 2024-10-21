@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [[ -z $ARM_SUBSCRIPTION_ID ]];
+then
+  echo "Missing ARM_SUBSCRIPTION_ID env var"
+  exit 1
+fi
+
+eval "$(get_az_creds)" &> /dev/null
+if [[ $? -ne 0 ]];
+then
+    echo "Failed to get creds for $ARM_SUBSCRIPTION_ID - exiting"
+    exit 1
+fi
+terraform $@

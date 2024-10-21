@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+import hvac
+from yaml import safe_load
+from os import environ
+
+homedir = environ.get('HOME')
+profile = environ.get('ARM_SUBSCRIPTION_ID')
+config = safe_load(open(f"{homedir}/.creds.yaml"))
+
+base_url = config.get('config').get('base_url')
+token = config.get('config').get('token')
+
+# Authentication
+client = hvac.Client(
+    url = base_url,
+    token = token
+)
+
+# This comes from:
+# az ad sp create-for-rbac --name terraform --role="Contributor" --scopes="/subscriptions/${az_subscription}"
+secret_data = {
+  "appId": "",
+  "displayName": "terraform",
+  "password": "",
+  "tenant": ""
+}
+secret_path = f"bilsch/azure/{profile}/{secret_data.get('displayName')}"
+print(f"Storing creds to {secret_path}")
+client.secrets.kv.v2.create_or_update_secret(path=secret_path, secret=secret_data)

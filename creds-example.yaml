@@ -1,0 +1,5 @@
+config:
+  base_url: "https://your.vault.host:8200"
+  token: "your.token.value"
+azure:
+  subscription-id: your-azure-subscription-id

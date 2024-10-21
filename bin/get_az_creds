@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+
+import hvac
+from yaml import safe_load
+from sys import argv
+from os import environ
+
+if len(argv) > 1:
+    profile = argv.pop()
+elif environ.get('ARM_SUBSCRIPTION_ID'):
+    profile = environ.get('ARM_SUBSCRIPTION_ID')
+else:
+    print("Error must pass tenant id as first arg")
+    exit(1)
+
+secret_path = f"bilsch/azure/{profile}/terraform"
+homedir = environ.get('HOME')
+config = safe_load(open(f"{homedir}/.creds.yaml"))
+
+base_url = config.get('config').get('base_url')
+token = config.get('config').get('token')
+
+client = hvac.Client(
+    url = base_url,
+    token = token
+)
+
+try:
+    read_response = client.secrets.kv.read_secret_version(path=secret_path, raise_on_deleted_version=False)
+except hvac.exceptions.InvalidPath:
+    print(f"Secret not found: {secret_path}")
+    exit(1)
+
+data = read_response.get('data').get('data')
+req_keys = ["appId", "displayName", "password", "tenant"]
+
+if all(item in data.keys() for item in req_keys):
+    appId = data.get('appId')
+    displayName = data.get('displayName')
+    password = data.get('password')
+    tenant = data.get('tenant')
+    
+    print(f"export ARM_CLIENT_ID={appId}")
+    print(f"export ARM_CLIENT_SECRET={password}")
+    print(f"export ARM_SUBSCRIPTION_ID={profile}")
+    print(f"export ARM_TENANT_ID={tenant}")
+else:
+    print(f"Did not find aws creds in secret {secret_path}")
+    exit(1)

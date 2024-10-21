@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+
+import hvac
+from yaml import safe_load
+from sys import argv
+from os import environ
+
+if len(argv) > 1:
+    profile = argv.pop()
+elif environ.get('AWS_PROFILE'):
+    profile = environ.get('AWS_PROFILE')
+else:
+    print("Error must pass profile as first arg")
+    exit(1)
+
+secret_path = f"bilsch/aws/{profile}/terraform"
+homedir = environ.get('HOME')
+config = safe_load(open(f"{homedir}/.creds.yaml"))
+
+base_url = config.get('config').get('base_url')
+token = config.get('config').get('token')
+
+client = hvac.Client(
+    url = base_url,
+    token = token
+)
+
+try:
+    read_response = client.secrets.kv.read_secret_version(path=secret_path, raise_on_deleted_version=False)
+except hvac.exceptions.InvalidPath:
+    print(f"Secret not found: {secret_path}")
+    exit(1)
+
+data = read_response.get('data').get('data')
+req_keys = ["aws_access_key_id", "aws_secret_access_key"]
+
+if all(item in data.keys() for item in req_keys):
+    aws_access_key_id = data.get('aws_access_key_id')
+    aws_secret_access_key = data.get('aws_secret_access_key')
+else:
+    print(f"Did not find aws creds in secret {secret_path}")
+    exit(1)
+
+print(f"export AWS_ACCESS_KEY_ID={aws_access_key_id}")
+print(f"export AWS_SECRET_ACCESS_KEY={aws_secret_access_key}")
