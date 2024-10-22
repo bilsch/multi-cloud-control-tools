@@ -8,11 +8,27 @@ fi
 
 profile=${AWS_PROFILE:-lab}
 
+# AWS_PROFILE being set causes terraform grief
+unset AWS_PROFILE
+
 eval "$(get_aws_creds $profile)" &> /dev/null
 if [[ $? -ne 0 ]];
 then
     echo "Failed to get creds for $profile - exiting"
     exit 1
 fi
-unset AWS_PROFILE
+
+export VAULT_ADDR=$(yq '.config.base_url' ~/.creds.yaml | awk '{print $1}')
+export VAULT_TOKEN=$(yq '.config.token' ~/.creds.yaml | awk '{print $1}')
+
+if [[ -z "$VAULT_ADDR" ]];
+then
+  echo "VAULT_ADDR appears empty"
+fi
+
+if [[ -z "$VAULT_TOKEN" ]];
+then
+  echo "VAULT_TOKEN appears empty"
+fi
+
 terraform $@
