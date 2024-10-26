@@ -1,4 +1,6 @@
-config:
+consul:
+  addr: your.consul.host:8501
+vault:
   base_url: "https://your.vault.host:8200"
   token: "your.token.value"
 azure:
