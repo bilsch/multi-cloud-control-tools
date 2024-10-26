@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+
+import hvac
+import argparse
+import pprint
+from yaml import safe_load
+from sys import argv
+from os import environ
+
+parser = argparse.ArgumentParser(
+            prog='get_tf_state_bucket',
+            description='fetch the terraform state bucket information'
+        )
+
+parser.add_argument('-c', '--cloud', help='aws|azure|gcp')
+parser.add_argument('-p', '--profile')
+
+args = parser.parse_args()
+
+if args.cloud == None:
+    print("Must set cloud provider")
+    exit(1)
+
+if args.profile == None:
+    print("Must set profile")
+    exit(1)
+
+secret_path = f"bilsch/{args.cloud}/{args.profile}/terraform_state_store"
+homedir = environ.get('HOME')
+config = safe_load(open(f"{homedir}/.multi-cloud-config.yaml"))
+
+base_url = config.get('vault').get('base_url')
+token = config.get('vault').get('token')
+
+client = hvac.Client(
+    url = base_url,
+    token = token
+)
+
+try:
+    read_response = client.secrets.kv.read_secret_version(path=secret_path, raise_on_deleted_version=False)
+except hvac.exceptions.InvalidPath:
+    print(f"Secret not found: {secret_path}")
+    exit(1)
+
+data = read_response.get('data').get('data')
+
+if args.cloud == "aws":
+    bucket_key = "s3_bucket_id"
+elif args.cloud == "azure":
+    # This may not be right
+    # azurerm_storage_account_id , azurerm_storage_container_id
+    bucket_key = "azurerm_storage_container_id"
+
+if bucket_key in data.keys():
+    print(data.get(bucket_key))
+else:
+    print(f"Failed to find {bucket_key} in {secret_path}")
+    exit(1)
