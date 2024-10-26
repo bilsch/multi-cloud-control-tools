@@ -6,10 +6,10 @@ from os import environ
 
 homedir = environ.get('HOME')
 profile = environ.get('ARM_SUBSCRIPTION_ID')
-config = safe_load(open(f"{homedir}/.creds.yaml"))
+config = safe_load(open(f"{homedir}/.multi-cloud-config.yaml"))
 
-base_url = config.get('config').get('base_url')
-token = config.get('config').get('token')
+base_url = config.get('vault').get('base_url')
+token = config.get('vault').get('token')
 
 # Authentication
 client = hvac.Client(

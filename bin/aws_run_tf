@@ -18,13 +18,22 @@ then
     exit 1
 fi
 
-export VAULT_TLS_SERVER_NAME=$(yq '.config.base_url' ~/.creds.yaml | awk '{print $1}' | cut -d: -f1-2 | cut -d\/ -f3)
-export VAULT_ADDR=$VAULT_TLS_SERVER_NAME
-export VAULT_TOKEN=$(yq '.config.token' ~/.creds.yaml | awk '{print $1}' | tr -d "\"")
+# configure consul provider
+CONSUL_HTTP_ADDR=$(yq '.consul.addr' ~/.multi-cloud-config.yaml)
+CONSUL_HTTP_SSL=true
 
-if [[ -z "$VAULT_TLS_SERVER_NAME" ]];
+# configure vault provider
+export VAULT_ADDR=$(yq '.vault.base_url' ~/.multi-cloud-config.yaml)
+export VAULT_TOKEN=$(yq '.vault.token' ~/.multi-cloud-config.yaml | awk '{print $1}' | tr -d "\"")
+
+if [[ -z "$CONSUL_HTTP_ADDR" ]];
 then
-  echo "VAULT_TLS_SERVER_NAME appears empty"
+  echo "CONSUL_HTTP_DDR appears empty"
+fi
+
+if [[ -z "$VAULT_ADDR" ]];
+then
+  echo "VAULT_ADDR appears empty"
 fi
 
 if [[ -z "$VAULT_TOKEN" ]];

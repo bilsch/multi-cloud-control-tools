@@ -13,10 +13,10 @@ else:
 
 secret_path = f"bilsch/aws/{profile}/terraform"
 homedir = environ.get('HOME')
-config = safe_load(open(f"{homedir}/.aws_creds.yaml"))
+config = safe_load(open(f"{homedir}/.multi-cloud-config.yaml"))
 
-base_url = config.get('config').get('base_url')
-token = config.get('config').get('token')
+base_url = config.get('vault').get('base_url')
+token = config.get('vault').get('token')
 
 # Authentication
 client = hvac.Client(
