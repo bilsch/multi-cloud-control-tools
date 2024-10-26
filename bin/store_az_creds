@@ -18,7 +18,13 @@ client = hvac.Client(
 )
 
 # This comes from:
-# az ad sp create-for-rbac --name terraform --role="Contributor" --scopes="/subscriptions/${az_subscription}"
+#
+# az ad sp list | less
+#   - look for terraform, grab its appId value
+# az ad sp delete --id appId
+#
+# to create:
+# az ad sp create-for-rbac --name terraform --role="Contributor" --scopes="/subscriptions/${ARM_SUBSCRIPTION_ID}"
 secret_data = {
   "appId": "",
   "displayName": "terraform",
