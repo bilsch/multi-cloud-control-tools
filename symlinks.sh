@@ -6,6 +6,6 @@ do
     test -h ~/bin/$file
     if [[ $? -ne 0 ]];
     then
-        ln -s $(pwd)/bin/$file ~/bin
+        ln -s $(pwd)/$file ~/bin
     fi
 done
