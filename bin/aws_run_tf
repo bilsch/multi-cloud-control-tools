@@ -19,11 +19,11 @@ then
 fi
 
 # configure consul provider
-CONSUL_HTTP_ADDR=$(yq '.consul.addr' ~/.multi-cloud-config.yaml)
+CONSUL_HTTP_ADDR=$(yq '.consul.addr' ~/.multi-cloud-config.yaml | tr -d "\"")
 CONSUL_HTTP_SSL=true
 
 # configure vault provider
-export VAULT_ADDR=$(yq '.vault.base_url' ~/.multi-cloud-config.yaml)
+export VAULT_ADDR=$(yq '.vault.base_url' ~/.multi-cloud-config.yaml | tr -d "\"")
 export VAULT_TOKEN=$(yq '.vault.token' ~/.multi-cloud-config.yaml | awk '{print $1}' | tr -d "\"")
 
 if [[ -z "$CONSUL_HTTP_ADDR" ]];
