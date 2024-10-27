@@ -7,8 +7,8 @@ then
 fi
 
 # configure consul provider
-CONSUL_HTTP_ADDR=$(yq '.consul.addr' ~/.multi-cloud-config.yaml | tr -d "\"")
-CONSUL_HTTP_SSL=true
+export CONSUL_HTTP_ADDR=$(yq '.consul.addr' ~/.multi-cloud-config.yaml | tr -d "\"")
+export CONSUL_HTTP_SSL=true
 
 # configure vault provider
 export VAULT_ADDR=$(yq '.vault.base_url' ~/.multi-cloud-config.yaml | tr -d "\"")
