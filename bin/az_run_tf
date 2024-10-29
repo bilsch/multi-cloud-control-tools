@@ -32,4 +32,11 @@ then
     exit 1
 fi
 
+#
+# TODO:
+# 
+# terraform plan -out plan.json
+# infracost breakdown --format json --out-file cost.json -p plan.json
+# ... what to do with cost.json
+
 terraform $@
