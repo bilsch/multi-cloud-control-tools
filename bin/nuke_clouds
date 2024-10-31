@@ -1,0 +1,41 @@
+#!/bin/bash
+
+echo "start: $(date)"
+
+. /etc/profile
+. ~/.profile
+. ~/.bash_profile
+
+cd ~/gits/multi-cloud-control-configs-private
+git pull
+
+cd ~/gits/multi-cloud-control-plane
+git pull
+
+find . -maxdepth 4 -type d -name modules -print0 | xargs -0 rm -rf
+
+for stage in 020-vpc
+do
+  echo "---> $stage <---"
+  cd $stage
+  for provider in aws azure
+  do
+    echo "---> $provider <---"
+    cd $provider
+    if [[ "$provider" == "aws" ]];
+    then
+      aws_run_tf init --reconfigure
+      aws_run_tf destroy -auto-approve
+    elif  [[ "$provider" == "azure" ]];
+    then
+      az_run_tf init --reconfigure
+      az_run_tf destroy -auto-approve
+    fi
+    echo "--> done with provider $provider <---"
+    cd ..
+  done
+  echo "--> done with stage $stage <---"
+  cd ..
+done
+
+echo "complete: $(date)"
