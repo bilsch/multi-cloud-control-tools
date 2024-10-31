@@ -1,0 +1,48 @@
+#!/bin/bash
+
+. /etc/profile
+. ~/.profile
+. ~/.bash_profile
+
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+pyenv activate default
+
+cd ~/gits/multi-cloud-control-tools
+git pull
+./symlinks.sh
+
+cd ~/gits/multi-cloud-control-configs-private
+git pull
+
+cd ~/gits/multi-cloud-control-plane
+git pull
+
+find . -maxdepth 4 -type d -name modules -print0 | xargs -0 rm -rf
+
+for stage in 020-vpc
+do
+  echo "---> $stage <---"
+  cd $stage
+  for provider in aws azure
+  do
+    echo "---> $provider <---"
+    cd $provider
+    if [[ "$provider" == "aws" ]];
+    then
+      aws_run_tf init --reconfigure -no-color
+      aws_run_tf apply -auto-approve -no-color
+    elif  [[ "$provider" == "azure" ]];
+    then
+      az_run_tf init --reconfigure -no-color
+      az_run_tf apply -auto-approve -no-color
+    fi
+    echo "--> done with provider $provider <---"
+    cd ..
+  done
+  echo "--> done with stage $stage <---"
+  cd ..
+done
