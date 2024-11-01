@@ -13,7 +13,7 @@ else:
     print("Error must pass tenant id as first arg")
     exit(1)
 
-secret_path = f"bilsch/azure/{profile}/terraform"
+secret_path = f"multi-cloud/azure/{profile}/terraform"
 homedir = environ.get('HOME')
 config = safe_load(open(f"{homedir}/.multi-cloud-config.yaml"))
 

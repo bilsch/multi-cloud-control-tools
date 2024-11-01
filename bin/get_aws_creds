@@ -13,7 +13,7 @@ else:
     print("Error must pass profile as first arg")
     exit(1)
 
-secret_path = f"bilsch/aws/{profile}/terraform"
+secret_path = f"multi-cloud/aws/{profile}/terraform"
 homedir = environ.get('HOME')
 config = safe_load(open(f"{homedir}/.multi-cloud-config.yaml"))
 

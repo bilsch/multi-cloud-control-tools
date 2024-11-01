@@ -31,6 +31,6 @@ secret_data = {
   "password": "",
   "tenant": ""
 }
-secret_path = f"bilsch/azure/{profile}/{secret_data.get('displayName')}"
+secret_path = f"multi-cloud/azure/{profile}/{secret_data.get('displayName')}"
 print(f"Storing creds to {secret_path}")
 client.secrets.kv.v2.create_or_update_secret(path=secret_path, secret=secret_data)
