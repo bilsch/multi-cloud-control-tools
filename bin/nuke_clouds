@@ -25,28 +25,28 @@ git pull
 
 find . -maxdepth 4 -type d -name modules -print0 | xargs -0 rm -rf
 
-for stage in 020-vpc
+for stage in $(ls | grep -P "\d{3}" | sort -r)
 do
-  echo "---> $stage <---"
-  cd $stage
-  for provider in aws azure
-  do
-    echo "---> $provider <---"
-    cd $provider
-    if [[ "$provider" == "aws" ]];
-    then
-      aws_run_tf init --reconfigure -no-color
-      aws_run_tf destroy -auto-approve -no-color
-    elif  [[ "$provider" == "azure" ]];
-    then
-      az_run_tf init --reconfigure -no-color
-      az_run_tf destroy -auto-approve -no-color
-    fi
-    echo "--> done with provider $provider <---"
-    cd ..
-  done
-  echo "--> done with stage $stage <---"
-  cd ..
+   echo "---> $stage <---"
+   cd $stage
+   for provider in aws azure
+   do
+      echo "---> $provider <---"
+      cd $provider
+      if [[ "$provider" == "aws" ]];
+      then
+         aws_run_tf init --reconfigure -no-color
+         aws_run_tf destroy -auto-approve -no-color
+      elif   [[ "$provider" == "azure" ]];
+      then
+         az_run_tf init --reconfigure -no-color
+         az_run_tf destroy -auto-approve -no-color
+      fi
+      echo "--> done with provider $provider <---"
+      cd ..
+   done
+   echo "--> done with stage $stage <---"
+   cd ..
 done
 
 echo "complete: $(date)"
