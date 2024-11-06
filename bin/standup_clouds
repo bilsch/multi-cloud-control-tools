@@ -23,7 +23,15 @@ git pull
 
 find . -maxdepth 4 -type d -name modules -print0 | xargs -0 rm -rf
 
-for stage in $(ls | grep -P "\d{3}" | sort )
+if [[ "$(uname -s)" == "Darwin" ]];
+then
+   stages=$(ls | egrep -e "\d{3}" | sort)
+elif [[ "$(uname -s)" == "Linux" ]];
+then
+   stages=$(ls | grep -P "\d{3}" | sort)
+fi
+
+for stage in $stages
 do
    echo "---> $stage <---"
    cd $stage

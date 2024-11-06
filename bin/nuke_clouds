@@ -25,7 +25,15 @@ git pull
 
 find . -maxdepth 4 -type d -name modules -print0 | xargs -0 rm -rf
 
-for stage in $(ls | grep -P "\d{3}" | sort -r)
+if [[ "$(uname -s)" == "Darwin" ]];
+then
+   stages=$(ls | egrep -P "\d{3}" | sort -r)
+elif [[ "$(uname -s)" == "Linux" ]];
+then
+   stages=$(ls | grep -P "\d{3}" | sort -r)
+fi
+
+for stage in $stages
 do
    echo "---> $stage <---"
    cd $stage
@@ -35,12 +43,12 @@ do
       cd $provider
       if [[ "$provider" == "aws" ]];
       then
-         aws_run_tf init --reconfigure -no-color
-         aws_run_tf destroy -auto-approve -no-color
+         echo "aws_run_tf init --reconfigure -no-color"
+         echo "aws_run_tf destroy -auto-approve -no-color"
       elif   [[ "$provider" == "azure" ]];
       then
-         az_run_tf init --reconfigure -no-color
-         az_run_tf destroy -auto-approve -no-color
+         echo "az_run_tf init --reconfigure -no-color"
+         echo "az_run_tf destroy -auto-approve -no-color"
       fi
       echo "--> done with provider $provider <---"
       cd ..
